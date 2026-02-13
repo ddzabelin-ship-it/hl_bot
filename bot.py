@@ -11,9 +11,9 @@ from apscheduler.triggers.cron import CronTrigger
 TOKEN = "8458423184:AAGRqzCZyysNc62oudYC8TX7CNMqraRKTW4"  # Ваш токен
 CHAT_ID = -1003705629246  # ID вашего чата (группы)
 TIMEZONE = "Europe/Moscow"  # Часовой пояс (например, Asia/Yekaterinburg)
-SEND_HOUR = 14      # Час отправки (0-23)
+SEND_HOUR = 15      # Час отправки (0-23)
 SEND_MINUTE = 30    # Минута отправки
-TEXT_TEMPLATE = "Прошу выполнить 10-20 заданий № {} из ОГЭ/ЕГЭ сегодня"
+TEXT_TEMPLATE = "Прошу выполнить от 10 заданий № {} из РешуОГЭ(ЕГЭ) сегодня и прислать скриншот"
 MAX_NUMBER = 16    # Максимальный номер задания (цикл от 1 до MAX_NUMBER)
 # ================================================================
 
