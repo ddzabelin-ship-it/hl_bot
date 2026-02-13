@@ -13,7 +13,7 @@ from apscheduler.triggers.cron import CronTrigger
 TOKEN = "8458423184:AAGRqzCZyysNc62oudYC8TX7CNMqraRKTW4"  # Ваш токен
 TIMEZONE = "Europe/Moscow"  # Часовой пояс
 SEND_HOUR = 15      # Час отправки
-SEND_MINUTE = 45    # Минута отправки
+SEND_MINUTE = 50    # Минута отправки
 TEXT_TEMPLATE = "Прошу выполнить от 10 заданий № {} из РешуОГЭ(ЕГЭ) сегодня и прислать скриншот"
 MAX_NUMBER = 16     # Максимальный номер задания
 # ===================================
