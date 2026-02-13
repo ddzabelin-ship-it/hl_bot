@@ -1,6 +1,5 @@
 import asyncio
 import logging
-from datetime import datetime
 import pytz
 
 from telegram import Bot
@@ -8,16 +7,18 @@ from telegram.error import TelegramError
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.cron import CronTrigger
 
-# ============ НАСТРОЙКИ (ЗАМЕНИТЕ НА СВОИ) ============
-TOKEN = "7234567890:AAHdqTcvCH1vGWJxfSeofSAs0K5PALDsaw"  # токен от @BotFather
-CHAT_ID = -1001234567890  # ID чата, куда отправлять
-TIMEZONE = "Europe/Moscow"  # ваш часовой пояс (например Europe/Moscow, Asia/Almaty)
-# =====================================================
+# ============ НАСТРОЙКИ (при желании можно изменить) ============
+TOKEN = "8458423184:AAGRqzCZyysNc62oudYC8TX7CNMqraRKTW4"  # Ваш токен
+CHAT_ID = -1003705629246  # ID вашего чата (группы)
+TIMEZONE = "Europe/Moscow"  # Часовой пояс (например, Asia/Yekaterinburg)
+SEND_HOUR = 14      # Час отправки (0-23)
+SEND_MINUTE = 30    # Минута отправки
+TEXT_TEMPLATE = "Прошу выполнить 10-20 заданий № {} из ОГЭ/ЕГЭ сегодня"
+MAX_NUMBER = 16    # Максимальный номер задания (цикл от 1 до MAX_NUMBER)
+# ================================================================
 
-# Файл для хранения текущего номера задания (будет создан автоматически)
 STATE_FILE = "counter.txt"
 
-# Настройка логирования
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -27,7 +28,6 @@ def read_counter():
         with open(STATE_FILE, "r") as f:
             return int(f.read().strip())
     except (FileNotFoundError, ValueError):
-        # Файл отсутствует или повреждён – начинаем с 1
         with open(STATE_FILE, "w") as f:
             f.write("1")
         return 1
@@ -41,40 +41,33 @@ async def send_daily_task():
     """Отправляет сообщение и обновляет счётчик."""
     bot = Bot(token=TOKEN)
     try:
-        # Читаем текущий номер
         task_num = read_counter()
-        message = f"Прошу выполнить задание № {task_num} сегодня"
-        
-        # Отправляем сообщение
+        message = TEXT_TEMPLATE.format(task_num)
         await bot.send_message(chat_id=CHAT_ID, text=message)
         logger.info(f"Отправлено: {message}")
-        
-        # Увеличиваем номер, сбрасываем после 16
+
+        # Увеличиваем номер, сбрасываем после MAX_NUMBER
         next_num = task_num + 1
-        if next_num > 16:
+        if next_num > MAX_NUMBER:
             next_num = 1
         write_counter(next_num)
         logger.info(f"Следующий номер: {next_num}")
-        
+
     except TelegramError as e:
         logger.error(f"Ошибка отправки: {e}")
     except Exception as e:
         logger.error(f"Общая ошибка: {e}")
 
 async def main():
-    """Главная функция – запускает планировщик."""
     scheduler = AsyncIOScheduler(timezone=pytz.timezone(TIMEZONE))
-    
-    # Планируем задачу на 09:00 каждый день
     scheduler.add_job(
         send_daily_task,
-        trigger=CronTrigger(hour=9, minute=0, timezone=pytz.timezone(TIMEZONE))
+        trigger=CronTrigger(hour=SEND_HOUR, minute=SEND_MINUTE, timezone=pytz.timezone(TIMEZONE))
     )
-    
     scheduler.start()
-    logger.info("Бот запущен и будет отправлять сообщения ежедневно в 09:00")
-    
-    # Держим скрипт активным
+    logger.info(f"Бот запущен. Будет отправлять ежедневно в {SEND_HOUR:02d}:{SEND_MINUTE:02d} по времени {TIMEZONE}")
+
+    # Бесконечное ожидание
     try:
         while True:
             await asyncio.sleep(1)
